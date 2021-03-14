@@ -1,21 +1,31 @@
 import * as React from 'react';
 import styles from './HelloWorld.module.scss';
 import { IHelloWorldProps } from './IHelloWorldProps';
-import { DefaultButton } from 'office-ui-fabric-react/lib/Button';
+import { DefaultButton, PrimaryButton } from 'office-ui-fabric-react/lib/Button';
 import { TextField, MaskedTextField } from 'office-ui-fabric-react/lib/TextField';
 import { Stack, IStackProps } from 'office-ui-fabric-react/lib/Stack';
 import * as strings from 'HelloWorldWebPartStrings';
-const logo: any = require('./../../../assets/google.gif');
-import * as yup from 'yup';
+//const logo: any = require('./../../../assets/google.gif');
+import {useForm} from "react-hook-form";
+import {yupResolver} from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { TextBoxControl } from './controls/TextBoxControl';
 
-export default class HelloWorld extends React.Component<IHelloWorldProps, {}> {
-  public render(): React.ReactElement<IHelloWorldProps> {
+interface  IFormInputs {
+  firstName: string
+}
 
-    const schema = yup.object().shape({
-      firstName: yup.string().required()
-    });
+const schema = yup.object().shape({
+  firstName: yup.string().required()
+})
 
-    console.log(schema);
+export default function HelloWorld (props: IHelloWorldProps) {
+  const {handleSubmit, errors, control } = useForm<IFormInputs>(
+    {
+      resolver: yupResolver(schema)
+    }
+  );
+  const onSubmit = (data: IFormInputs) => alert(JSON.stringify(data));
 
     const columnProps: Partial<IStackProps> = {
       tokens: { childrenGap: 15 },
@@ -23,9 +33,10 @@ export default class HelloWorld extends React.Component<IHelloWorldProps, {}> {
     };
     return (
       <div>
-        <div>
-          <img src={logo} />
-        </div>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <TextBoxControl control={control} errors={errors} name="firstName" label="Enter name"/>
+          <PrimaryButton type="submit" text="accept"/>
+        </form>
         <div>
           <span className={styles.title}>Welcome to SharePoint!</span>
           <br />
@@ -45,5 +56,5 @@ export default class HelloWorld extends React.Component<IHelloWorldProps, {}> {
         </div>
       </div>
     );
-  }
+  
 }
